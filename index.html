@@ -1,0 +1,130 @@
+<html>
+<head>
+	<title></title>
+	<meta charset='utf-8'>
+	<link rel="stylesheet" type="text/css" href="css/jquerymobile.css">
+	<link rel="stylesheet" type="text/css" href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css">
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquerymobile.js"></script>
+	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+	<script type="text/javascript" src="js/cordova-2.3.0"></script>
+		<script type="text/javascript" src="js/html5sql.js"></script>
+
+	<script type="text/javascript">
+	var lat, lon, map, demoRunning;
+	$(document).bind("pageshow", "#firstpage",function(evt, data){
+		navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError);
+		createTables();
+	})
+
+	function getFarolas(){
+		var latitud, longitud;
+		html5sql.process(
+					"SELECT * FROM farola",
+                        function(transaction, results){ //Success
+                        	alert("Consulta efectuada con exito");
+                        	console.log(results.rows.item(0));
+                        	latitud = results.rows.item(2).latitud;
+                        	longitud = results.rows.item(2).longitud;
+				putFarola(latitud, longitud);
+
+                        },
+                        function(error, failingQuery){ //Failure
+                        	$("#results").text("Error: " + error.message);
+
+                        }
+                        );
+
+	}
+	function onGeoSuccess(position){
+		var lat = position.coords.latitude;
+		var lon = position.coords.longitude;
+		var currentPosition = new google.maps.LatLng(lat, lon);
+		var mapoptions = {
+			zoom : 12,
+			center: currentPosition,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		map = new google.maps.Map(document.getElementById("map"), mapoptions);
+
+		var marker = new google.maps.Marker({
+			position: currentPosition,
+			map: map
+		});
+	}
+	function onGeoError(error){
+		if(error==1){
+			alert("turn on geolocation services")
+		}
+	}
+
+	function putFarola(lat, lon){
+		alert("lat y lon" + lat);
+		var latlng = new google.maps.LatLng(lat, lon);
+
+var pinIcon = new google.maps.MarkerImage(
+			"img/farola.svg",
+			null,
+			null,
+			null,
+			new google.maps.Size(20, 50)
+			);
+//icon: "http://www.gettyicons.com/free-icons/108/gis-gps/png/24/needle_left_yellow_2_24.png"
+
+		var mapMarker = new google.maps.Marker({
+			position:latlng,
+			title: "Estás aquí.",
+			icon:pinIcon
+		});
+
+
+		mapMarker.setMap(map);
+	}
+
+
+	function createTables(){
+			if(!demoRunning){
+			//	$("#map").text("running...");
+				demoRunning = true;
+				try {
+					html5sql.openDatabase("demo", "Demo Database", 5*1024*1024);
+					$.get('database.sql',function(sql){
+						var startTime = new Date();
+						html5sql.process(
+							sql,
+                        function(){ //Success
+                        	var endTime = new Date();
+                        	demoRunning = false;
+                        	getFarolas();
+                        },
+                        function(error, failingQuery){ //Failure
+                        	alert("error en createTables" + error.message);
+                        	demoRunning = false;
+                        }
+                        );
+					});
+
+				} catch (error) {
+					$("#results").text("Error: " + error.message);
+					demoRunning = false;
+				}
+			}
+		}
+	</script>
+
+</head>
+<body>
+	<section id="firstpage" data-role="page">
+		<header data-role="header">
+			<h1>Cabecera</h1>
+		</header>
+		<div class="content" data-role="content">
+			<div id="map" ></div>
+			<div id="results"></div>
+		</div>
+		<footer data-role="footer">El pie de la página</footer>
+	</section>
+	<button click="getFarolas()"></button>
+</body>
+</html>
