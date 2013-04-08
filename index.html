@@ -62,20 +62,20 @@
 	function putFarola(lat, lon){
 		alert("lat y lon" + lat);
 		var latlng = new google.maps.LatLng(lat, lon);
-
+/*
 var pinIcon = new google.maps.MarkerImage(
 			"img/farola.svg",
 			null,
 			null,
 			null,
 			new google.maps.Size(20, 50)
-			);
+			);*/
 //icon: "http://www.gettyicons.com/free-icons/108/gis-gps/png/24/needle_left_yellow_2_24.png"
 
 		var mapMarker = new google.maps.Marker({
 			position:latlng,
 			title: "Estás aquí.",
-			icon:pinIcon,
+			icon:"img/farola.svg",
 		});
 
 
