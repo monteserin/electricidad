@@ -96,7 +96,7 @@
 		var latlng = new google.maps.LatLng(lat, lon);
 
 		var pinIcon = new google.maps.MarkerImage(
-			"img/farola.svg",
+			"img/farola.png",
 			null,
 			null,
 			null,
@@ -107,7 +107,7 @@
 var mapMarker = new google.maps.Marker({
 	position:latlng,
 	title: "Estás aquí.",
-	icon: "img/farola.png"
+	icon: pinIcon
 });
 mapMarker.setMap(map);
 }
