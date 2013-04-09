@@ -7,17 +7,35 @@
 	<link rel="stylesheet" type="text/css" href="css/styles.css">
 	<script type="text/javascript" src="js/jquery.js"></script>
 	<script type="text/javascript" src="js/jquerymobile.js"></script>
+	<script type="text/javascript" src="js/cordova-2.5.0.js"></script>
 	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
-	<script type="text/javascript" src="js/cordova-2.3.0"></script>
-	<script type="text/javascript" src="js/html5sql.js"></script>
-
 	<script type="text/javascript">
-	var lat, lon, map, demoRunning;
-	$(document).bind("pageshow", "#firstpage",function(evt, data){
-		navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, { maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
-		db = window.openDatabase("databaseName", "1.0", "Display Name", 200000);
-	})
+	var lat, lon;
+	var deviceReadyDeferred = $.Deferred();  // deviceReadyDeferred es la variable que usaremos para controlar cuando el framework fue cargado
+	var jqmReadyDeferred = $.Deferred();	// jqmReadyDeferred es la variable que usaremos para controlar cuando el framework fue cargado
+	document.addEventListener("deviceReady", deviceReady, false);
+	function deviceReady(){
+		deviceReadyDeferred.resolve(); // el framework deviceReady fue cargado
+	}
+	$(document).on("pageinit", "#firstpage",function(evt){
+		$(document).bind("pageshow", "#firstpage",function(e, data){
+			jqmReadyDeferred.resolve(); // el framework jquery mobile fue cargado
+		});
+	});
+	$.when(deviceReadyDeferred, jqmReadyDeferred).then(doWhenBothFrameworksLoaded);
+	function doWhenBothFrameworksLoaded() {
+		alert("los dos frameworks cargados");
+		alert(navigator.connection.type);
+		/*Probar los ejercicios utilizando localhost en vez de file:/// y mejor en chrome que en firefox, de lo contrario, funciona de forma intermitente*/
+		/*PhoneGap Documentation: The Android 2.x simulators will not return a geolocation result unless the enableHighAccuracy option is set to true.*/
+		/*Si estoy usando el emulador de Android, no olvidarme de pulsar Emulator Control -> Manual -> Decimal para enviar mis coordenadas, es posible que el telefono no las tenga seteadas*/
+		//navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, { enableHighAccuracy: true });
+		navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, { maximumAge: Infinity, timeout: 15000, enableHighAccuracy: true });
 
+
+
+		db = window.openDatabase("databaseName", "1.0", "Display Name", 200000);
+	}
 	function getFarolas(tx){
 		alert("llega a getFarolas");
 		tx.executeSql("SELECT * FROM farola", [], getFarolasOK, error);
@@ -26,9 +44,12 @@
 		tx.executeSql("DROP TABLE IF EXISTS farola;");
 		tx.executeSql("CREATE TABLE IF NOT EXISTS farola (id, latitud, longitud);");
 		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.39991, 2.171942);");
+		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 37.450332, -122.089033);");
+
 	}
 
 	function getFarolasOK(tx, results){
+		alert("getFarolasOK");
 		var len = results.rows.length;
 		alert("llega a getFarolasOK. length: " + len);
 
@@ -43,6 +64,7 @@
 		alert("hubo un error: " + error.message);
 	}
 	function onGeoSuccess(position){
+		alert("onGeoSuccess");
 		var lat = position.coords.latitude;
 		var lon = position.coords.longitude;
 		var currentPosition = new google.maps.LatLng(lat, lon);
@@ -57,6 +79,7 @@
 			position: currentPosition,
 			map: map,
 		});
+		alert("leeeegaaaaaaaa");
 		db.transaction(createTables, error, transactionOK);
 		db.transaction(getFarolas, error, transactionOK);
 	}
@@ -65,15 +88,15 @@
 			alert("turn on geolocation services")
 		}else{
 			alert("geoError: " + error);
-			alert("geoError: " + error.message);
+			alert("error code: " + error.code);
+			alert("error message: " + error.message);
 		}
 	}
-
 	function putFarola(lat, lon){
 		alert("lat y lon" + lat);
 		var latlng = new google.maps.LatLng(lat, lon);
 
-var pinIcon = new google.maps.MarkerImage(
+		var pinIcon = new google.maps.MarkerImage(
 			"img/farola.svg",
 			null,
 			null,
@@ -87,16 +110,11 @@ var mapMarker = new google.maps.Marker({
 	title: "Estás aquí.",
 	icon: pinIcon
 });
-
-
 mapMarker.setMap(map);
 }
-
-
 function transactionOK(){
 
 }
-
 </script>
 
 </head>
