@@ -14,7 +14,7 @@
 	<script type="text/javascript">
 	var lat, lon, map, demoRunning;
 	$(document).bind("pageshow", "#firstpage",function(evt, data){
-		navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError);
+		navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, { maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
 		db = window.openDatabase("databaseName", "1.0", "Display Name", 200000);
 	})
 
@@ -63,6 +63,9 @@
 	function onGeoError(error){
 		if(error==1){
 			alert("turn on geolocation services")
+		}else{
+			alert("geoError: " + error);
+			alert("geoError: " + error.message);
 		}
 	}
 
