@@ -33,7 +33,7 @@
 	$.when(deviceReadyDeferred, jqmReadyDeferred).then(doWhenBothFrameworksLoaded);
 	function doWhenBothFrameworksLoaded() {
 		//$.mobile.changePage("#secondpage");
-		alert(navigator.connection.type);
+		//alert(navigator.connection.type);
 		/*Probar los ejercicios utilizando localhost en vez de file:/// y mejor en chrome que en firefox, de lo contrario, funciona de forma intermitente*/
 		/*PhoneGap Documentation: The Android 2.x simulators will not return a geolocation result unless the enableHighAccuracy option is set to true.*/
 		/*Si estoy usando el emulador de Android, no olvidarme de pulsar Emulator Control -> Manual -> Decimal para enviar mis coordenadas, es posible que el telefono no las tenga seteadas*/
@@ -46,19 +46,19 @@
 		db = window.openDatabase("databaseName", "1.0", "Display Name", 200000);
 	}
 	function getFarolas(tx){
-		alert("llega a getFarolas");
+		//alert("llega a getFarolas");
 		tx.executeSql("SELECT * FROM farola", [], getFarolasOK, error);
 	}
 	function createTables(tx){
 		tx.executeSql("DROP TABLE IF EXISTS farola;");
 		tx.executeSql("CREATE TABLE IF NOT EXISTS farola (id, latitud, longitud);");
 		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.39991, 2.171942);");
-		/*tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 37.450332, -122.089033);");
+		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 37.450332, -122.089033);");
 		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.38737, 2.175236);");
 		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.395612, 2.142963);");
 		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.395612, 2.142963);");
 		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.369546, 2.134606);");
-		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.369756, 2.130378);");*/
+		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.369756, 2.130378);");
 	}
 
 	function getFarolasOK(tx, results){
@@ -101,7 +101,7 @@
 		}
 	}
 	function putFarola(lat, lon){
-		alert("lat y lon" + lat);
+	//	alert("lat y lon" + lat);
 		var latlng = new google.maps.LatLng(lat, lon);
 
 		var pinIcon = new google.maps.MarkerImage(
