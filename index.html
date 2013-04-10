@@ -19,17 +19,28 @@
 	}
 	$(document).on("pageinit", "#firstpage",function(evt){
 		$(document).bind("pageshow", "#firstpage",function(e, data){
-			jqmReadyDeferred.resolve(); // el framework jquery mobile fue cargado
+			//jqmReadyDeferred.resolve(); // el framework jquery mobile fue cargado
+			alert("stop");
+			$.mobile.changePage("#secondpage");
 		});
 	});
+	$(document).on("pageinit", "#secondpage",function(evt){
+
+		$(document).bind("pageshow", "#secondpage",function(e, data){
+		jqmReadyDeferred.resolve(); // el framework jquery mobile fue cargado
+	});
+	});
+
 	$.when(deviceReadyDeferred, jqmReadyDeferred).then(doWhenBothFrameworksLoaded);
 	function doWhenBothFrameworksLoaded() {
+		//$.mobile.changePage("#secondpage");
 		alert("los dos frameworks cargados");
 		alert(navigator.connection.type);
 		/*Probar los ejercicios utilizando localhost en vez de file:/// y mejor en chrome que en firefox, de lo contrario, funciona de forma intermitente*/
 		/*PhoneGap Documentation: The Android 2.x simulators will not return a geolocation result unless the enableHighAccuracy option is set to true.*/
 		/*Si estoy usando el emulador de Android, no olvidarme de pulsar Emulator Control -> Manual -> Decimal para enviar mis coordenadas, es posible que el telefono no las tenga seteadas*/
 		//navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, { enableHighAccuracy: true });
+
 		navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, { maximumAge: Infinity, timeout: 15000, enableHighAccuracy: true });
 
 
@@ -73,12 +84,13 @@
 			center: currentPosition,
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
-		map = new google.maps.Map(document.getElementById("map"), mapoptions);
+		map = new google.maps.Map($("#secondpage #map"), mapoptions);
 
 		var marker = new google.maps.Marker({
 			position: currentPosition,
 			map: map,
 		});
+		alert("stop");
 		db.transaction(createTables, error, transactionOK);
 		db.transaction(getFarolas, error, transactionOK);
 	}
@@ -127,11 +139,27 @@
 			<h1>Cabecera</h1>
 		</header>
 		<div class="content" data-role="content">
-			<div id="map" ></div>
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 			<div id="results"></div>
 		</div>
 		<footer data-role="footer">El pie de la página</footer>
 	</section>
-	<button click="getFarolas()"></button>
+	<section id="secondpage" data-role="page">
+		<header data-role="header">
+			<h1>Cabecera</h1>
+		</header>
+		<div class="content2" data-role="content">
+			pagina 2
+			ulala			<div id="map" ></div>
+
+		</div>
+		<footer data-role="footer">El pie de la página</footer>
+	</section>
+
 </body>
 </html>
