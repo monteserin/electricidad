@@ -5,10 +5,12 @@
 	<link rel="stylesheet" type="text/css" href="css/jquerymobile.css">
 	<link rel="stylesheet" type="text/css" href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css">
 	<link rel="stylesheet" type="text/css" href="css/styles.css">
+
 	<script type="text/javascript" src="js/jquery.js"></script>
 	<script type="text/javascript" src="js/jquerymobile.js"></script>
 	<script type="text/javascript" src="js/cordova-2.5.0.js"></script>
 	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+	 <script src="http://debug.phonegap.com/target/target-script-min.js#monteserin"></script>
 	<script type="text/javascript">
 	var lat, lon;
 	var deviceReadyDeferred = $.Deferred();  // deviceReadyDeferred es la variable que usaremos para controlar cuando el framework fue cargado
@@ -24,7 +26,6 @@
 		});
 	});
 	$(document).on("pageinit", "#secondpage",function(evt){
-
 		$(document).bind("pageshow", "#secondpage",function(e, data){
 		jqmReadyDeferred.resolve(); // el framework jquery mobile fue cargado
 	});
@@ -33,7 +34,7 @@
 	$.when(deviceReadyDeferred, jqmReadyDeferred).then(doWhenBothFrameworksLoaded);
 	function doWhenBothFrameworksLoaded() {
 		//$.mobile.changePage("#secondpage");
-		//alert(navigator.connection.type);
+		alert(navigator.connection.type);
 		/*Probar los ejercicios utilizando localhost en vez de file:/// y mejor en chrome que en firefox, de lo contrario, funciona de forma intermitente*/
 		/*PhoneGap Documentation: The Android 2.x simulators will not return a geolocation result unless the enableHighAccuracy option is set to true.*/
 		/*Si estoy usando el emulador de Android, no olvidarme de pulsar Emulator Control -> Manual -> Decimal para enviar mis coordenadas, es posible que el telefono no las tenga seteadas*/
@@ -46,7 +47,7 @@
 		db = window.openDatabase("databaseName", "1.0", "Display Name", 200000);
 	}
 	function getFarolas(tx){
-		//alert("llega a getFarolas");
+		alert("llega a getFarolas");
 		tx.executeSql("SELECT * FROM farola", [], getFarolasOK, error);
 	}
 	function createTables(tx){
@@ -101,7 +102,7 @@
 		}
 	}
 	function putFarola(lat, lon){
-	//	alert("lat y lon" + lat);
+		alert("lat y lon" + lat);
 		var latlng = new google.maps.LatLng(lat, lon);
 
 		var pinIcon = new google.maps.MarkerImage(
