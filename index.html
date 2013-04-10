@@ -44,12 +44,12 @@
 		tx.executeSql("DROP TABLE IF EXISTS farola;");
 		tx.executeSql("CREATE TABLE IF NOT EXISTS farola (id, latitud, longitud);");
 		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.39991, 2.171942);");
-		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 37.450332, -122.089033);");
+		/*tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 37.450332, -122.089033);");
 		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.38737, 2.175236);");
 		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.395612, 2.142963);");
 		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.395612, 2.142963);");
 		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.369546, 2.134606);");
-		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.369756, 2.130378);");
+		tx.executeSql("INSERT INTO farola (id,latitud, longitud) VALUES(0, 41.369756, 2.130378);");*/
 	}
 
 	function getFarolasOK(tx, results){
@@ -97,25 +97,28 @@
 
 		var pinIcon = new google.maps.MarkerImage(
 		//	"assets/www/img/farola.png",
-			"img/farola.png",
-			null,
-			null,
-			null,
-			new google.maps.Size(20, 50)
-			);
-//icon: "http://www.gettyicons.com/free-icons/108/gis-gps/png/24/needle_left_yellow_2_24.png"
+		"img/farola.png",
+		null,
+		null,
+		null,
+		new google.maps.Size(20, 50)
+		);
 
-var mapMarker = new google.maps.Marker({
-	position:latlng,
-	title: "Estás aquí.",
-	icon: pinIcon
-});
-mapMarker.setMap(map);
-}
-function transactionOK(){
+		var mapMarker = new google.maps.Marker({
+			position:latlng,
+			clickable: true,
+			title: "Estás aquí.",
+			icon: pinIcon
+		});
+		google.maps.event.addListener(mapMarker, 'click', function(event) {
+			alert("Enviando a la base de datos...");
+		});
+		mapMarker.setMap(map);
+	}
+	function transactionOK(){
 
-}
-</script>
+	}
+	</script>
 
 </head>
 <body>
