@@ -1,0 +1,192 @@
+<html>
+<head>
+	<title></title>
+	<meta charset='utf-8'>
+	<link rel="stylesheet" type="text/css" href="css/jquerymobile.css">
+	<link rel="stylesheet" type="text/css" href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css">
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
+	<script type="text/javascript" src="js/html5sql.js"></script>
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/jquerymobile.js"></script>
+	<script type="text/javascript" src="js/cordova-2.5.0.js"></script>
+	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+	<script src="http://debug.phonegap.com/target/target-script-min.js#monteserin"></script>
+	<script type="text/javascript">
+	var lat, lon;
+	var deviceReadyDeferred = $.Deferred();  // deviceReadyDeferred es la variable que usaremos para controlar cuando el framework fue cargado
+	var jqmReadyDeferred = $.Deferred();	// jqmReadyDeferred es la variable que usaremos para controlar cuando el framework fue cargado
+	document.addEventListener("deviceReady", deviceReady, false);
+	function deviceReady(){
+		deviceReadyDeferred.resolve(); // el framework deviceReady fue cargado
+	}
+	$(document).on("pageinit", "#firstpage",function(evt){
+		$(document).bind("pageshow", "#firstpage",function(e, data){
+			//jqmReadyDeferred.resolve(); // el framework jquery mobile fue cargado
+			$.mobile.changePage("#secondpage");
+		});
+	});
+	$(document).on("pageinit", "#secondpage",function(evt){
+		$(document).bind("pageshow", "#secondpage",function(e, data){
+		jqmReadyDeferred.resolve(); // el framework jquery mobile fue cargado
+	});
+	});
+
+	$.when(deviceReadyDeferred, jqmReadyDeferred).then(doWhenBothFrameworksLoaded);
+	function doWhenBothFrameworksLoaded() {
+		//$.mobile.changePage("#secondpage");
+		//alert(navigator.connection.type);
+		/*Probar los ejercicios utilizando localhost en vez de file:/// y mejor en chrome que en firefox, de lo contrario, funciona de forma intermitente*/
+		/*PhoneGap Documentation: The Android 2.x simulators will not return a geolocation result unless the enableHighAccuracy option is set to true.*/
+		/*Si estoy usando el emulador de Android, no olvidarme de pulsar Emulator Control -> Manual -> Decimal para enviar mis coordenadas, es posible que el telefono no las tenga seteadas*/
+		//navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, { enableHighAccuracy: true });
+		navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, { maximumAge: Infinity, timeout: 15000, enableHighAccuracy: true });
+
+
+
+		//db = window.openDatabase("databaseName", "1.0", "Display Name", 200000);
+	}
+	function getFarolas(){
+		var latitud, longitud;
+		html5sql.process(
+			"SELECT * FROM farola",
+                        function(transaction, results){ //Success
+
+                        	console.log(results.rows.item(0));
+                        	latitud = results.rows.item(2).latitud;
+                        	longitud = results.rows.item(2).longitud;
+                        	putFarola(latitud, longitud);
+
+                        },
+                        function(error, failingQuery){ //Failure
+                        	$("#results").text("Error: " + error.message);
+
+                        }
+                        );
+
+	}
+
+	function createTables(){
+		alert("llega a create");
+			//	$("#map").text("running...");
+			try {
+				html5sql.openDatabase("demo", "Demo Database", 5*1024*1024);
+				alert("justo antes peticion");
+				$.get('database.sql',function(sql){
+					alert("sql"+sql);
+					var startTime = new Date();
+					html5sql.process(
+						sql,
+                        function(){ //Success
+                        	alert("createTables-> ok");
+                        	var endTime = new Date();
+                        	getFarolas();
+                        },
+                        function(error, failingQuery){ //Failure
+                        	alert("error en createTables" + error.message);
+                        }
+                        );
+				});
+
+			} catch (error) {
+				$("#results").text("Error: " + error.message);
+				demoRunning = false;
+			}
+		}
+		function getFarolasOK(tx, results){
+			alert("putFarolasOK");
+			var len = results.rows.length;
+			var output = "";
+			for(var i = 0; i<len; i++){
+				latitud = results.rows.item(i).latitud;
+				longitud = results.rows.item(i).longitud;
+				putFarola(latitud, longitud);
+			}
+		}
+		function error(error){
+			alert("hubo un error: " + error.message);
+		}
+		function onGeoSuccess(position){
+			alert("onGeoSuccess");
+			var lat = position.coords.latitude;
+			var lon = position.coords.longitude;
+			var currentPosition = new google.maps.LatLng(lat, lon);
+			var mapoptions = {
+				zoom : 12,
+				center: currentPosition,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			};
+			map = new google.maps.Map(document.getElementById("map"), mapoptions);
+
+			var marker = new google.maps.Marker({
+				position: currentPosition,
+				map: map,
+			});
+			alert("llegaCreateTables");
+//			db.transaction(createTables, error, transactionOK);
+createTables();
+
+			//db.transaction(getFarolas, error, transactionOK);
+		}
+		function onGeoError(error){
+			if(error==1){
+				alert("turn on geolocation services")
+			}else{
+				alert("geoError: " + error);
+				alert("error code: " + error.code);
+				alert("error message: " + error.message);
+			}
+		}
+		function putFarola(lat, lon){
+			alert("putFarola" + lat + lon);
+			var latlng = new google.maps.LatLng(lat, lon);
+
+			var pinIcon = new google.maps.MarkerImage(
+		//	"assets/www/img/farola.png",
+		"img/farola.png",
+		null,
+		null,
+		null,
+		new google.maps.Size(20, 50)
+		);
+
+			var mapMarker = new google.maps.Marker({
+				position:latlng,
+				clickable: true,
+				title: "Estás aquí.",
+				icon: pinIcon
+			});
+			google.maps.event.addListener(mapMarker, 'click', function(event) {
+				alert("Enviando a la base de datos...");
+			});
+			mapMarker.setMap(map);
+		}
+		function transactionOK(){
+
+		}
+		</script>
+
+	</head>
+	<body>
+		<section id="firstpage" data-role="page">
+			<header data-role="header">
+				<h1>Cabecera</h1>
+			</header>
+			<div class="content" data-role="content">
+				<h1>loading...</h1>
+				<div id="results"></div>
+			</div>
+			<footer data-role="footer">El pie de la página</footer>
+		</section>
+		<section id="secondpage" data-role="page">
+			<header data-role="header">
+				<h1>Cabecera</h1>
+			</header>
+			<div class="content2" data-role="content">
+				<div id="map" ></div>
+				<button onclick="doWhenBothFrameworksLoaded()">dsa</button>
+			</div>
+			<footer data-role="footer">El pie de la página</footer>
+		</section>
+
+	</body>
+	</html>
